@@ -1,0 +1,117 @@
+idea:
+  title: Detect different lies
+  domain: artificial_intelligence
+  hypothesis: 'The literature already proposes several distinctions between types
+    of
+
+    false outputs (e.g., hallucination, confabulation, strategic deception).
+
+    However, current lie-detection methods often evaluate detectors on
+
+    datasets that do not cleanly separate these mechanisms, which makes it
+
+    difficult to know what the detector is actually detecting. When LLMs
+
+    produce false statements, how often are these due to epistemic failure
+
+    versus incentive-driven misreporting?
+
+
+    Concretely: for one model and matched questions, separate false outputs
+
+    where the model does not know the answer (hallucination) from false
+
+    outputs where it knows the answer but misreports it under an incentive
+
+    (lie). What share of false statements falls in each category, and do
+
+    standard white-box lie detectors and hallucination detectors tell the two
+
+    apart, or do they respond to falsehood or uncertainty in general?
+
+    '
+  background:
+    description: "Why it matters. White-box deception probes are a leading proposal\
+      \ for\nmonitoring models. If a \"lie detector\" fires on falsehood in general,\
+      \ or\non low-knowledge states, rather than on a mismatch between belief and\n\
+      statement, it will flag honest mistakes and may miss confident knowing\nlies.\n\
+      \nWhat is known. MASK (2503.03750) is a behavioural benchmark that\nseparates\
+      \ honesty (statement vs elicited belief) from accuracy (belief\nvs ground truth)\
+      \ using pressure prompts and neutral belief elicitation,\nwithout probe analysis\
+      \ of the two error types. Liars' Bench (2511.16035)\ncollects lie and honest\
+      \ examples from four open models (24B-72B) over\nseven settings and finds detectors\
+      \ fail on some lie types; its focus is\nlies vs honest answers, not lies vs\
+      \ honest errors. Goldowsky-Dill et al.\n(2502.03407) train linear deception\
+      \ probes on Llama-3.3-70B with high\nAUROC and note the probes also fire on\
+      \ deception-related but honest\ntext. Other recent work finds that different\
+      \ deception types have partly\ndistinct representations (2602.01425), that truth\
+      \ probes miss deception\nwithout false statements (2603.10003), asymmetric transfer\
+      \ between\nspontaneous and instructed deception probes (2609.00180), and that\n\
+      hidden states reflect knowledge recall rather than truthfulness, with\nsome\
+      \ hallucinations looking internally like correct answers\n(2510.09033).\n\n\
+      Gap. The area is crowded on \"lie type A versus lie type B\". Less covered,\n\
+      as far as abstracts show, is a matched, same-question, same-model design\nthat\
+      \ crosses knowledge (the model knows or does not know, checked by\nneutral elicitation)\
+      \ with incentive (neutral or pressure), and then asks\nwhat fraction of false\
+      \ outputs falls where and whether deception probes\nand hallucination probes\
+      \ confuse the cases. Position the work against\nthe papers above.\n\nScope and\
+      \ pitfalls.\n- Models: gated repos (google/gemma-*, meta-llama/*) need the HF_TOKEN\n\
+      \  environment variable to have been granted access; if a download is\n  refused,\
+      \ Qwen2.5-7B-Instruct works without it. Liars' Bench\n  (Cadenza-Labs/liars-bench)\
+      \ is likewise gated on the Hub.\n- Small models may lie only when instructed.\
+      \ With 7-9B models,\n  incentive-driven lying without an explicit instruction\
+      \ may be rare, so\n  the \"lie\" category can collapse into instructed or role-play\
+      \ lies,\n  which is the case prior work already criticises. Report the yield\
+      \ of\n  genuine belief-contradicting answers honestly.\n- Prompt confound: lies\
+      \ always come with a pressure prompt, so a probe\n  can learn to detect the\
+      \ prompt rather than the lie. The comparison is\n  only informative with honest\
+      \ answers given under the same pressure,\n  and with a check on what a probe\
+      \ reads from the prompt tokens alone.\n- The informative contrast is lie versus\
+      \ hallucination (both false), not\n  lie versus honest-correct.\n- Belief labelling\
+      \ is noisy: \"knows\" versus \"does not know\" from\n  sampling consistency\
+      \ is fuzzy, and a confidently wrong belief is\n  neither a hallucination nor\
+      \ a lie in the usual sense.\n"
+    papers:
+    - url: https://arxiv.org/abs/2503.03750
+      description: MASK (Ren et al. 2025). Behavioural benchmark separating honesty
+        from accuracy with pressure prompts and neutral belief elicitation; no probe
+        analysis.
+    - url: https://arxiv.org/abs/2511.16035
+      description: Liars' Bench (Kretschmar et al. 2025). 72,863 lie/honest examples
+        from 4 open models over 7 settings; detectors fail on some lie types. Lies
+        vs honest, not lies vs honest errors.
+    - url: https://arxiv.org/abs/2502.03407
+      description: Goldowsky-Dill et al., Detecting Strategic Deception Using Linear
+        Probes. Llama-3.3-70B probes, AUROC 0.96-0.999; probes also fire on deception-related
+        honest text.
+    - url: https://arxiv.org/abs/2602.01425
+      description: Natarajan et al., One Probe Won't Catch Them All (ICML 2026). Deception
+        types have partly distinct representations; a universal probe gains little.
+    - url: https://arxiv.org/abs/2603.10003
+      description: Probing the Limits of the Lie Detector Approach. Truth probes miss
+        deception without false statements.
+    - url: https://arxiv.org/abs/2609.00180
+      description: Luikham, Asymmetries in Spontaneous and Instructed Deception. Llama-3.1-70B;
+        spontaneous-trained probes transfer to instructed better than the reverse.
+    - url: https://arxiv.org/abs/2607.20479
+      description: 'Beyond Liars'' Bench: lie typology, depth, sparsity. Fabrication/omission/exaggeration
+        typology for probes; unclear whether hallucination is included.'
+    - url: https://arxiv.org/abs/2510.09033
+      description: LLMs Do NOT Really Know What They Don't Know. Hidden states reflect
+        knowledge recall, not truthfulness; some hallucinations look like correct
+        answers internally.
+    - url: https://arxiv.org/abs/2606.12618
+      description: '''Did you lie?'' belief-verified model organisms. Possibly related;
+        check for overlap.'
+    - url: https://alignment.anthropic.com/2026/lie-detectors/
+      description: Anthropic alignment blog post on lie detectors. Possibly related;
+        check for overlap.
+    datasets:
+    - name: MASK
+      source: huggingface:cais/MASK
+      description: Pressure scenarios with belief elicitation for honesty evaluation.
+    - name: TriviaQA
+      source: huggingface:mandarjoshi/trivia_qa
+      description: Short-answer factual questions with ground truth.
+  metadata:
+    author: Xiaoyan Bai

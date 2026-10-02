@@ -1,0 +1,162 @@
+You are an autonomous AI researcher. Below is a research idea. Carry out the
+whole project yourself in the current directory, from the idea to a finished
+research paper, in this single session.
+
+Nobody is available to answer questions or approve steps, so make reasonable
+decisions on your own and keep going until the paper is done. There is no time limit: doing the research properly and finishing the paper matters more than speed.
+
+## Research idea
+
+```yaml
+idea:
+  title: Detect different lies
+  domain: artificial_intelligence
+  hypothesis: |-
+    The literature already proposes several distinctions between types of
+    false outputs (e.g., hallucination, confabulation, strategic deception).
+    However, current lie-detection methods often evaluate detectors on
+    datasets that do not cleanly separate these mechanisms, which makes it
+    difficult to know what the detector is actually detecting. When LLMs
+    produce false statements, how often are these due to epistemic failure
+    versus incentive-driven misreporting?
+
+    Concretely: for one model and matched questions, separate false outputs
+    where the model does not know the answer (hallucination) from false
+    outputs where it knows the answer but misreports it under an incentive
+    (lie). What share of false statements falls in each category, and do
+    standard white-box lie detectors and hallucination detectors tell the two
+    apart, or do they respond to falsehood or uncertainty in general?
+  background:
+    description: |-
+      Why it matters. White-box deception probes are a leading proposal for
+      monitoring models. If a "lie detector" fires on falsehood in general, or
+      on low-knowledge states, rather than on a mismatch between belief and
+      statement, it will flag honest mistakes and may miss confident knowing
+      lies.
+
+      What is known. MASK (2503.03750) is a behavioural benchmark that
+      separates honesty (statement vs elicited belief) from accuracy (belief
+      vs ground truth) using pressure prompts and neutral belief elicitation,
+      without probe analysis of the two error types. Liars' Bench (2511.16035)
+      collects lie and honest examples from four open models (24B-72B) over
+      seven settings and finds detectors fail on some lie types; its focus is
+      lies vs honest answers, not lies vs honest errors. Goldowsky-Dill et al.
+      (2502.03407) train linear deception probes on Llama-3.3-70B with high
+      AUROC and note the probes also fire on deception-related but honest
+      text. Other recent work finds that different deception types have partly
+      distinct representations (2602.01425), that truth probes miss deception
+      without false statements (2603.10003), asymmetric transfer between
+      spontaneous and instructed deception probes (2609.00180), and that
+      hidden states reflect knowledge recall rather than truthfulness, with
+      some hallucinations looking internally like correct answers
+      (2510.09033).
+
+      Gap. The area is crowded on "lie type A versus lie type B". Less covered,
+      as far as abstracts show, is a matched, same-question, same-model design
+      that crosses knowledge (the model knows or does not know, checked by
+      neutral elicitation) with incentive (neutral or pressure), and then asks
+      what fraction of false outputs falls where and whether deception probes
+      and hallucination probes confuse the cases. Position the work against
+      the papers above.
+
+      Scope and pitfalls.
+      - Models: gated repos (google/gemma-*, meta-llama/*) need the HF_TOKEN
+        environment variable to have been granted access; if a download is
+        refused, Qwen2.5-7B-Instruct works without it. Liars' Bench
+        (Cadenza-Labs/liars-bench) is likewise gated on the Hub.
+      - Small models may lie only when instructed. With 7-9B models,
+        incentive-driven lying without an explicit instruction may be rare, so
+        the "lie" category can collapse into instructed or role-play lies,
+        which is the case prior work already criticises. Report the yield of
+        genuine belief-contradicting answers honestly.
+      - Prompt confound: lies always come with a pressure prompt, so a probe
+        can learn to detect the prompt rather than the lie. The comparison is
+        only informative with honest answers given under the same pressure,
+        and with a check on what a probe reads from the prompt tokens alone.
+      - The informative contrast is lie versus hallucination (both false), not
+        lie versus honest-correct.
+      - Belief labelling is noisy: "knows" versus "does not know" from
+        sampling consistency is fuzzy, and a confidently wrong belief is
+        neither a hallucination nor a lie in the usual sense.
+    papers:
+    - url: https://arxiv.org/abs/2503.03750
+      description: MASK (Ren et al. 2025). Behavioural benchmark separating honesty from accuracy with
+        pressure prompts and neutral belief elicitation; no probe analysis.
+    - url: https://arxiv.org/abs/2511.16035
+      description: Liars' Bench (Kretschmar et al. 2025). 72,863 lie/honest examples from 4 open models
+        over 7 settings; detectors fail on some lie types. Lies vs honest, not lies vs honest errors.
+    - url: https://arxiv.org/abs/2502.03407
+      description: Goldowsky-Dill et al., Detecting Strategic Deception Using Linear Probes. Llama-3.3-70B
+        probes, AUROC 0.96-0.999; probes also fire on deception-related honest text.
+    - url: https://arxiv.org/abs/2602.01425
+      description: Natarajan et al., One Probe Won't Catch Them All (ICML 2026). Deception types have
+        partly distinct representations; a universal probe gains little.
+    - url: https://arxiv.org/abs/2603.10003
+      description: Probing the Limits of the Lie Detector Approach. Truth probes miss deception without
+        false statements.
+    - url: https://arxiv.org/abs/2609.00180
+      description: Luikham, Asymmetries in Spontaneous and Instructed Deception. Llama-3.1-70B; spontaneous-trained
+        probes transfer to instructed better than the reverse.
+    - url: https://arxiv.org/abs/2607.20479
+      description: 'Beyond Liars'' Bench: lie typology, depth, sparsity. Fabrication/omission/exaggeration
+        typology for probes; unclear whether hallucination is included.'
+    - url: https://arxiv.org/abs/2510.09033
+      description: LLMs Do NOT Really Know What They Don't Know. Hidden states reflect knowledge recall,
+        not truthfulness; some hallucinations look like correct answers internally.
+    - url: https://arxiv.org/abs/2606.12618
+      description: '''Did you lie?'' belief-verified model organisms. Possibly related; check for overlap.'
+    - url: https://alignment.anthropic.com/2026/lie-detectors/
+      description: Anthropic alignment blog post on lie detectors. Possibly related; check for overlap.
+    datasets:
+    - name: MASK
+      source: huggingface:cais/MASK
+      description: Pressure scenarios with belief elicitation for honesty evaluation.
+    - name: TriviaQA
+      source: huggingface:mandarjoshi/trivia_qa
+      description: Short-answer factual questions with ground truth.
+```
+
+The idea may be vague. Part of the job is to turn it into a concrete, testable
+question, find out what is already known, and choose an experimental design
+that gives an informative answer.
+
+## What to deliver
+
+1. **Real experiments.** Write and run the code. Every number, table and figure
+   in the paper must come from something you actually executed here. Never
+   simulate, invent or estimate results; if an experiment fails or the result
+   is negative or inconclusive, report that honestly.
+2. **A paper** in `paper_draft/`: LaTeX source with `paper_draft/main.tex` as
+   the entry point, compiled to `paper_draft/main.pdf`. Write it as a
+   conference-style machine learning paper (abstract, introduction, related
+   work with real citations, method, experiments, results, limitations,
+   conclusion), with figures and tables built from your results.
+3. **A reproducible workspace**: code under `src/`, raw results under
+   `results/`, and a top-level `README.md` that summarizes the question, what
+   you did, the main findings, and how to rerun it.
+
+## Environment
+
+- You are in a Linux container with full permissions inside this directory,
+  and with internet access for papers, datasets, models and packages.
+- Check the hardware before you plan (`nvidia-smi`, `nproc`, `free -g`). GPUs
+  may be shared with other jobs, so check free memory and pick an idle device.
+- Use an isolated Python environment inside this directory (for example
+  `uv venv` and `uv pip install`); do not install into the system Python.
+- API keys available as environment variables: `OPENROUTER_KEY`, `OPENAI_API_KEY`, `HF_TOKEN`. Prefer OpenRouter (base URL https://openrouter.ai/api/v1) for LLM API calls.
+- Keep large files (model weights, datasets, caches) out of the files meant
+  for version control: put them under `data/`, `models/` or a cache directory
+  and list those in `.gitignore`.
+- Never print or write API keys or tokens into any file, log, or the paper.
+- Do not run `git commit` or `git push`, and do not create or modify remotes.
+  The harness that launched you saves and publishes the workspace after you
+  finish.
+
+This session is non-interactive: when you end your turn the session is over,
+any background processes you started are killed, and you will not be called
+again. So never end your turn to wait for something. If a job is still running,
+wait for it inside the turn (for example with a blocking command that polls
+until it finishes), then carry on.
+
+Only when `paper_draft/main.pdf` exists and the README is written, give a
+short final summary of what you found and stop.
